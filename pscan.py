@@ -19,20 +19,24 @@ def run_shell(cmd):
         # set breakpoint for masscan bug [144]
         if "0.00-kpps, 100.00% done" in output:
             break
-    return output 
+    return output
 
 def masscan(HOST,INTERFACE):
-    cmd = ["masscan", "-p0-65535,U:0-65535" , HOST, "--rate=500", "-e", INTERFACE]
+    cmd = ["masscan", "-p0-65535,U:0-65535" , HOST, "--rate=1000", "-e", INTERFACE]
     output = run_shell(cmd)
-    masscan_ports = re.findall('port (\d*)', output)
-    nmap(HOST,masscan_ports)
+    tcp_ports = re.findall('port (\d*)/tcp', output)
+    udp_ports = re.findall('port (\d*)/udp', output)
+    nmap(HOST,tcp_ports,False)
+    nmap(HOST,udp_ports,True)
     return
 
-def nmap(HOST,masscan_ports):
-    ports = list({int(port) for port in masscan_ports})
-    print(ports.sort())
-    if masscan_ports:
-        cmd = ["nmap","-Pn","-sC","-sV","-T4","-v","-p"+''.join(str(ports)[1:-1].split()), HOST]
+def nmap(HOST,port_lst,isUDP):
+    ports = list({int(port) for port in port_lst})
+    if port_lst:
+        if isUDP:
+            cmd = ["nmap","-Pn","-sC","-sV","-sU","-T4","-p"+''.join(str(ports)[1:-1].split()), HOST]
+        else:
+            cmd = ["nmap","-Pn","-sC","-sV","-T4","-p"+''.join(str(ports)[1:-1].split()), HOST]
         run_shell(cmd)
     return
 
@@ -42,10 +46,5 @@ if __name__=="__main__":
         print("[*] Usage: " + sys.argv[0] +" <Target-HOST>" + " <Target-Network-Interface>")
         exit(1)
     HOST = sys.argv[1]
-    INTERFACE = sys.argv[2]
-    
-    start = time.clock()
-    #print(start)
+    INTERFACE = sys.argv[2] 
     masscan(HOST,INTERFACE)
-    #print("[+] Completed scan in " + str(time.clock()-start) + " min")
-    #print(time.clock())
