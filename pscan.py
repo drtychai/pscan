@@ -26,18 +26,19 @@ def masscan(HOST,INTERFACE):
     output = run_shell(cmd)
     tcp_ports = re.findall('port (\d*)/tcp', output)
     udp_ports = re.findall('port (\d*)/udp', output)
-    nmap(HOST,tcp_ports,False)
-    nmap(HOST,udp_ports,True)
+    nmap(HOST,tcp_ports,udp_ports)
     return
 
-def nmap(HOST,port_lst,isUDP):
-    ports = list({int(port) for port in port_lst})
-    if port_lst:
-        if isUDP:
-            cmd = ["nmap","-Pn","-sC","-sV","-sU","-T4","-p"+''.join(str(ports)[1:-1].split()), HOST]
-        else:
-            cmd = ["nmap","-Pn","-sC","-sV","-T4","-p"+''.join(str(ports)[1:-1].split()), HOST]
-        run_shell(cmd)
+def nmap(HOST,tcp_ports,udp_ports):
+    tports = list({int(tports) for tports in tcp_ports})
+    uports = list({int(uports) for uports in udp_ports})
+    if tcp_ports and udp_ports:
+        cmd = ["nmap","-Pn","-sC","-sV","-sS","-sU","-T4","-p T:"+''.join(str(tports)[1:-1].split())+",U:"+''.join(str(uports)[1:-1].split()),HOST] 
+    elif tcp_ports:
+        cmd = ["nmap","-Pn","-sC","-sV","-T4","-p "+''.join(str(tports)[1:-1].split()), HOST]
+    elif udp_ports:
+        cmd = ["nmap","-Pn","-sC","-sV","-sU","-T4","-p "+''.join(str(uports)[1:-1].split()), HOST]
+    run_shell(cmd)
     return
 
 if __name__=="__main__":
