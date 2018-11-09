@@ -33,7 +33,7 @@ def nmap(HOST,tcp_ports,udp_ports):
     tports = list({int(tports) for tports in tcp_ports})
     uports = list({int(uports) for uports in udp_ports})
     if tcp_ports and udp_ports:
-        cmd = ["nmap","-Pn","-sC","-sV","-sS","-sU","-T4","-p T:"+''.join(str(tports)[1:-1].split())+",U:"+''.join(str(uports)[1:-1].split()),HOST] 
+        cmd = ["nmap","-Pn","-sC","-sV","-sS","-sU","-T4","-p T:"+''.join(str(tports)[1:-1].split())+",U:"+''.join(str(uports)[1:-1].split()),HOST]
     elif tcp_ports:
         cmd = ["nmap","-Pn","-sC","-sV","-T4","-p "+''.join(str(tports)[1:-1].split()), HOST]
     elif udp_ports:
@@ -47,5 +47,5 @@ if __name__=="__main__":
         print("[*] Usage: " + sys.argv[0] +" <Target-HOST>" + " <Target-Network-Interface>")
         exit(1)
     HOST = sys.argv[1]
-    INTERFACE = sys.argv[2] 
+    INTERFACE = sys.argv[2]
     masscan(HOST,INTERFACE)
